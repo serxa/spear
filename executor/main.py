@@ -5,29 +5,42 @@ from sys import argv, exit
 
 import time
 import BaseHTTPServer
+import cgi
 import json
 import urlparse
 
 import handlers
 
 
-HOST_NAME = 'localhost' # !!!REMEMBER TO CHANGE THIS!!!
+HOST_NAME = 'localhost' # TODO: Read from configfile
 PORT_NUMBER = 8042
 
 class ParserException(StandardError):
     pass
 
 class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_HEAD(s):
-        s.send_response(500)
-        s.end_headers()
-    def do_GET(s):
+    server_version='spear-executor/0.0.0.0.1'
+
+    def do_HEAD(self):
+        self.send_response(500)
+        self.end_headers()
+
+    def do_POST(self):
+        """Respond to POST request."""
+        ctype, pdict = cgi.parse_header(self.headers.getheader('Content-type'))
+        post = cgi.parse_multipart(self.rfile,pdict)
+        self.do_ANYTHING(post)
+
+    def do_GET(self):
         """Respond to a GET request."""
-        s.send_response(200)
-        s.send_header("Content-type", "application/json")
-        s.send_header("Server", "spear-executor 0.0.0.0.0.1")
-        s.end_headers()
-        url = urlparse.urlparse(s.path)
+        self.do_ANYTHING(dict())
+
+    def do_ANYTHING(self, post):
+        """Respond to request with accompanying POST data, if any"""
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        url = urlparse.urlparse(self.path)
         try:
             urlpath = url.path.split('/')[1:]
             if len(urlpath) != 2:
@@ -35,6 +48,7 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             urlmodule = urlpath[0]
             urlfunc   = urlpath[1]
             urlargs   = urlparse.parse_qs(url.query)
+            urlargs['post'] = post
 
             try:
                 mod = getattr(handlers, urlmodule)
@@ -51,9 +65,9 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             except handlers.HandlerError as e:
                 raise ParserException(e.message) # Just propagate error upwards
         except ParserException as e:
-            s.wfile.write(json.dumps({'success':False, 'path': url, 'error': e.message}))
+            self.wfile.write(json.dumps({'success':False, 'error': e.message}))
         else:
-            s.wfile.write(json.dumps({'success':True, 'data':retval}))
+            self.wfile.write(json.dumps({'success':True, 'data':retval}))
 
 
 if __name__ == '__main__':

@@ -36,6 +36,23 @@ def ls(**kwargs):
             [f, stat(path=os.path.join(path,f))['type']] for f in content
            ]
 
+def put(**kwargs):
+    try:
+        path = kwargs['path'][0]
+    except KeyError:
+        raise HandlerError('Path not specified')
+    try:
+        filedata = kwargs['post']['file'][0]
+    except KeyError:
+        raise HandlerError('No POST data')
+    try:
+        f = open(path,'wb')
+        f.write(filedata)
+        f.close()
+    except OSError:
+        raise HandlerError('Unable ro write file')
+
+
 # TODO: other functions
 
 

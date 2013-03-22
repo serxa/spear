@@ -1,0 +1,11 @@
+<html>
+    <body>
+        <p>
+        This form will access Executor running on <tt>localhost:8042</tt> and use it to save supplied file as <tt>/tmp/test</tt>
+        </p>
+        <form action="http://localhost:8042/fs/put?path=/tmp/test" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" size="420"/> 
+            <input type="submit" value="Submit"/>
+        </form>
+    </body>
+</html>
