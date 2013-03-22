@@ -1,3 +1,14 @@
 # Compiled python files
 *.pyc
 *.pyo
+
+# Temporary editor files
+*.swp
+*~
+
+# OS generated files #
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+
