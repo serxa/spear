@@ -14,15 +14,15 @@ def stat(**kwargs):
         stat = os.stat(path)
     except OSError:
         raise HandlerError('Error accessing file')
-    return {
+    return (True,
+            {
             'path' : path,
             'size' : stat.st_size, # in bytes
             'mtime': stat.st_mtime,
             'ctime': stat.st_ctime,
             'isdir': os.path.isdir(path),
             'type' : {True: 'dir', False: 'file'}[os.path.isdir(path)],
-           }
-
+           })
 
 def ls(**kwargs):
     try:
@@ -33,9 +33,10 @@ def ls(**kwargs):
         content = os.listdir(path)
     except OSError:
         raise HandlerError('Unable to access file')
-    return [
-            [f, stat(path = os.path.join(path,f))['type']] for f in content
-           ]
+    return (True,
+           [
+            [f, stat(path = [os.path.join(path,f)])[1]['type']] for f in content
+           ])
 
 def put(**kwargs):
     try:
@@ -52,7 +53,29 @@ def put(**kwargs):
         f.close()
     except OSError:
         raise HandlerError('Unable ro write file')
+    return (True, None)
 
+def mkdir(**kwargs):
+    try:
+        path = kwargs['path'][0]
+    except KeyError:
+        raise HandlerError('Path not specified')    
+    try:
+        os.mkdir(path)
+    except OSError:
+        raise HandlerError('Unable to access file')
+    return (True, None)
+
+def get(**kwargs):
+    try:
+        path = kwargs['path'][0]
+    except KeyError:
+        raise HandlerError('Path not specified')
+    try:
+        data = open(path, 'rb').read()
+    except OSError:
+        raise HandlerError('Error reading file')
+    return (False, data)
 
 # TODO: other functions
 

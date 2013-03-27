@@ -36,9 +36,6 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_ANYTHING(self, post): # Not a conventional HTTPRequestHandler function, just a very handy routine
         """Respond to request with accompanying POST data, if any"""
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
         url = urlparse.urlparse(self.path)
         try:
             urlpath = url.path.split('/')[1:]
@@ -64,9 +61,21 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             except handlers.HandlerError as e:
                 raise ParserError(e.message) # Just propagate error upwards
         except ParserError as e:
-            self.wfile.write(json.dumps({'success':False, 'error': e.message}))
+            self.send_response(500)
+            self.send_header("Status", "error: "+e.message)
+            self.end_headers()
+#            self.wfile.write(json.dumps({'success':False, 'error': e.message}))
         else:
-            self.wfile.write(json.dumps({'success':True, 'data':retval}))
+            self.send_response(200)
+            self.send_header("Status", "success")
+            if retval[0]: # JSON
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(retval[1]))
+            else: # BINARY
+                self.send_header("Content-type", "application/octet-stream")
+                self.end_headers()
+                self.wfile.write(retval[1])
 
     def log_message(self, format, *args):
         return # Silence!
