@@ -62,7 +62,7 @@ def put(database, **kwargs):
         f = open(path,'wb')
         f.write(filedata)
         f.close()
-    except OSError:
+    except (OSError, IOError):
         raise HandlerError('Unable ro write file')
     return (True, None)
 
@@ -73,7 +73,7 @@ def get(database, **kwargs):
         raise HandlerError('Path not specified')
     try:
         data = open(path, 'rb').read()
-    except OSError:
+    except (OSError, IOError):
         raise HandlerError('Error reading file')
     return (False, data)
 
