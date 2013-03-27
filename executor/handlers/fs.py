@@ -5,7 +5,7 @@ import os
 import time
 from exception import HandlerError
 
-def stat(**kwargs):
+def stat(database, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -24,7 +24,7 @@ def stat(**kwargs):
             'type' : {True: 'dir', False: 'file'}[os.path.isdir(path)],
            })
 
-def ls(**kwargs):
+def ls(database, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -35,10 +35,21 @@ def ls(**kwargs):
         raise HandlerError('Unable to access file')
     return (True,
            [
-            [f, stat(path = [os.path.join(path,f)])[1]['type']] for f in content
+            [f, stat(database, path = [os.path.join(path,f)])[1]['type']] for f in content
            ])
 
-def put(**kwargs):
+def mkdir(database, **kwargs):
+    try:
+        path = kwargs['path'][0]
+    except KeyError:
+        raise HandlerError('Path not specified')
+    try:
+        os.mkdir(path)
+    except OSError:
+        raise HandlerError('Unable to access file')
+    return (True, None)
+
+def put(database, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -55,18 +66,7 @@ def put(**kwargs):
         raise HandlerError('Unable ro write file')
     return (True, None)
 
-def mkdir(**kwargs):
-    try:
-        path = kwargs['path'][0]
-    except KeyError:
-        raise HandlerError('Path not specified')    
-    try:
-        os.mkdir(path)
-    except OSError:
-        raise HandlerError('Unable to access file')
-    return (True, None)
-
-def get(**kwargs):
+def get(database, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:

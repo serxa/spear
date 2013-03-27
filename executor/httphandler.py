@@ -16,6 +16,7 @@ class ParserError(StandardError):
 
 class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_version = 'spear-executor'
+    database = None
     def __init__(self, database, *args, **kwargs):
         BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
         self.database = database
@@ -57,7 +58,7 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 raise ParserError('Unable to find function')
 
             try:
-                retval = func(**urlargs)
+                retval = func(self.database, **urlargs)
             except handlers.HandlerError as e:
                 raise ParserError(e.message) # Just propagate error upwards
         except ParserError as e:
