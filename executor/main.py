@@ -6,6 +6,7 @@
 """
 
 import BaseHTTPServer
+import ssl
 import sqlite3
 import threading
 import os
@@ -16,11 +17,12 @@ from functools import partial
 from httphandler import ExecutorHandler
 import settings
 
-def server_thread(database):
+def server_thread(database): # TODO: move to httphandler.py
     """Executor/http-server thread
     """
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((settings.HOST_NAME, settings.PORT_NUMBER), partial(ExecutorHandler, database))
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile=settings.CERTFILE, server_side=True, cert_reqs = ssl.CERT_NONE)
     httpd.serve_forever()
     # Will never happen
     httpd.server_close()
