@@ -37,6 +37,7 @@ else:
                 gversion    INTEGER
             );
             ''')
+    c.execute('''PRAGMA user_version = 1;''')
     conn.commit()
 
 conn.close()
