@@ -1,0 +1,11 @@
+<html>
+    <body>
+        <p>
+        This form will access Executor running on <tt>localhost:8042</tt> and use it to run <tt>cat</tt> supplying given file to it as <tt>stdin</tt>
+        </p>
+        <form action="https://localhost:8042/proc/run?wd=/tmp/&exec=/bin/cat" method="POST" enctype="multipart/form-data">
+            <input type="file" name="stdin" size="420"/> 
+            <input type="submit" value="Submit"/>
+        </form>
+    </body>
+</html>
