@@ -23,7 +23,7 @@ def server_thread(database): # TODO: move to httphandler.py
     """Executor/http-server thread
     """
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((settings.HOST_NAME, settings.PORT_NUMBER), partial(ExecutorHandler, database))
+    httpd = server_class((settings.HOST_NAME, settings.PORT_NUMBER), partial(ExecutorHandler, database()))
     httpd.socket = ssl.wrap_socket(httpd.socket, certfile=settings.CERTFILE, server_side=True, cert_reqs = ssl.CERT_NONE)
     httpd.serve_forever()
     # Will never happen
@@ -32,7 +32,7 @@ def server_thread(database): # TODO: move to httphandler.py
 def heart_thread(database):
     """Executor/heartbeat-sender thread
     """
-    c = database.cursor()
+    c = database().cursor()
     rows = c.execute('''pragma table_info(processes)''') # TODO: execute only once
     info = [i[1] for i in rows]
     #TODO: section below should be executed on timer call
@@ -47,10 +47,10 @@ def heart_thread(database):
     http_conn = httplib.HTTPSConnection(settings.SERVER_HOST, settings.SERVER_PORT, timeout = settings.CONNECTION_TIMEOUT) # TODO: Test whether this works with HTTPS
     headers = {'Content-Type' : 'application/json'}
     try:
-        http_conn.request('POST', headers, json.dumps(data))
+        http_conn.request('POST', '/hb?eid={0}'.format(settings.EID), json.dumps(data), headers)
         response = http_conn.getresponse()
         resp_data = response.read()
-        if resp_data['success']==True:
+        if resp_data['success'] == True:
             rows = c.execute('''UPDATE processes SET gversion = lversion WHERE gversion < lversion''')
     except IOError:
         http_conn.close()
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # List of function which will be started in separate threads
     thread_functions = [server_thread, heart_thread]
     # Create thread object with these functions
-    threads = [threading.Thread(target = f, args = (database(),)) for f in thread_functions]
+    threads = [threading.Thread(target = f, args = (database,)) for f in thread_functions]
     # Start them
     for t in threads:
         # t.daemon = True # It won't make a `true` daemon anyway
