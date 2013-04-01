@@ -14,6 +14,7 @@ def stat(database, **kwargs):
         stat = os.stat(path)
     except OSError:
         raise HandlerError('Error accessing file')
+    # TODO: return data as specified in docs
     return (True,
             {
             'path' : path,
@@ -63,7 +64,7 @@ def put(database, **kwargs):
         f.write(filedata)
         f.close()
     except (OSError, IOError):
-        raise HandlerError('Unable ro write file')
+        raise HandlerError('Error writing file')
     return (True, None)
 
 def get(database, **kwargs):
