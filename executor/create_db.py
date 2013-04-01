@@ -33,6 +33,7 @@ else:
                 queue_conf  TEXT   ,
                 stdin       TEXT   , /* maybe BLOB? */
                 stdout      TEXT   ,
+                stderr      TEXT   ,
                 lversion    INTEGER,
                 gversion    INTEGER
             );
