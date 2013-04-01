@@ -11,6 +11,8 @@ import sqlite3
 import threading
 import os
 import time
+import httplib
+import json
 from sys import argv, exit
 from functools import partial
 
@@ -30,7 +32,31 @@ def server_thread(database): # TODO: move to httphandler.py
 def heart_thread(database):
     """Executor/heartbeat-sender thread
     """
-    pass
+    c = database.cursor()
+    rows = c.execute('''pragma table_info(processes)''') # TODO: execute only once
+    info = [i[1] for i in rows]
+    #TODO: section below should be executed on timer call
+    rows = c.execute('''SELECT * FROM processes WHERE gversion < lversion''')
+    tasks = []
+    for task in rows:
+        t = dict()
+        for (f,l) in zip(task, info):
+            t[l] = f
+        tasks.append(t)
+    data = {'port' : settings.PORT_NUMBER, 'tasks' : tasks}
+    http_conn = httplib.HTTPSConnection(settings.SERVER_HOST, settings.SERVER_PORT, timeout = settings.CONNECTION_TIMEOUT) # TODO: Test whether this works with HTTPS
+    headers = {'Content-Type' : 'application/json'}
+    try:
+        http_conn.request('POST', headers, json.dumps(data))
+        response = http_conn.getresponse()
+        resp_data = response.read()
+        if resp_data['success']==True:
+            rows = c.execute('''UPDATE processes SET gversion = lversion WHERE gversion < lversion''')
+    except IOError:
+        http_conn.close()
+        pass
+    http_conn.close()
+
 
 
 if __name__ == '__main__':
@@ -51,4 +77,3 @@ if __name__ == '__main__':
             time.sleep(100)
     except KeyboardInterrupt:
         os._exit(0)
-
