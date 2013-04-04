@@ -7,6 +7,7 @@ from StringIO import StringIO # Probably use cStringIO?
 import struct
 import subprocess
 import tempfile
+import threading
 import time
 
 from exception import HandlerError
@@ -21,6 +22,10 @@ def run(database, **kwargs):
         args = kwargs['arg']
     except KeyError:
         args = []
+    try:
+        timeout = float(kwargs['timeout'][0])
+    except KeyError:
+        timeout = 10 # Seconds
     try:
         stdinf = kwargs['stdin'][0]
     except KeyError:
@@ -38,11 +43,19 @@ def run(database, **kwargs):
     argv = [executable]
     argv.extend(args)
 
+    # subprocess module has no wait-with-timeout functionality, so helper thread is used
     try:
-        # TODO: run asynchronously with timeout
-        exitcode = subprocess.call(argv, stdin = stdin, stdout = stdout, stderr = stderr, cwd = wd)
+        proc = subprocess.Popen(argv, stdin = stdin, stdout = stdout, stderr = stderr, cwd = wd)
     except OSError:
         raise HandlerError('Unable to run')
+    waiter_thread = threading.Thread(target = proc.communicate)
+    waiter_thread.start()
+    waiter_thread.join(timeout)
+    if waiter_thread.is_alive():
+        proc.terminate()
+        waiter_thread.join()
+        raise HandlerError('Timeout')
+    exitcode = proc.returncode
 
     # TODO: probably use https://github.com/stendec/netstruct with '<BQ$Q$' format
     retdata = struct.pack('< B', exitcode)
