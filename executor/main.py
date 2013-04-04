@@ -33,7 +33,7 @@ def heart_thread(database):
     """Executor/heartbeat-sender thread
     """
     c = database().cursor()
-    rows = c.execute('''pragma table_info(processes)''') # TODO: execute only once
+    rows = c.execute('''PRAGMA table_info(processes)''') # TODO: execute only once
     info = [i[1] for i in rows]
     while True:
         #TODO: section below should be executed on timer call

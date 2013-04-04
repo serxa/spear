@@ -21,7 +21,7 @@ else:
     c.execute('''DROP TABLE IF EXISTS processes;''')
     c.execute('''
             CREATE TABLE processes (
-                tid         INTEGER,
+                tid         INTEGER PRIMARY KEY,
                 status      INTEGER,
                 queue_type  TEXT   ,
                 pid         INTEGER,

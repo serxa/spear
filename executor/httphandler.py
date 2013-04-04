@@ -18,8 +18,8 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_version = 'spear-executor'
     database = None
     def __init__(self, database, *args, **kwargs):
-        BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
         self.database = database
+        BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def do_HEAD(self):
         self.send_response(500)
