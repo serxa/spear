@@ -28,7 +28,7 @@ def _stdin_from_request(**kwargs):
         stdin = open(stdinf)
     return stdin
 
-def run(database, **kwargs):
+def run(proc_table, **kwargs):
     try:
         wd = kwargs['wd'][0]
         executable = kwargs['exec'][0]
@@ -66,7 +66,7 @@ def run(database, **kwargs):
         retdata += f.read()
     return (False, retdata)
 
-def start(database, **kwargs):
+def start(proc_table, **kwargs):
     try:
         wd = kwargs['wd'][0]
         executable = kwargs['exec'][0]
@@ -85,30 +85,33 @@ def start(database, **kwargs):
         raise HandlerError('Unable to find queueator')
 
     try:
-        queueator.start(database, executable, args, wd, stdinf, stdoutf, stderrf)
+        queueator.start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf)
     except Exception, e:
         raise HandlerError('Error starting process: {0}'.format(str(e)))
     return (True, None)
 
-def get(database, **kwargs):
+def get(proc_table, **kwargs):
     try:
         tid = int(kwargs['tid'][0])
     except (KeyError, ValueError):
         raise HandlerError('TID not specified')
 
-    c = database.cursor()
-    c.execute('SELECT queue_type FROM processes WHERE tid = ?;', (tid, ))
-    queue = c.fetchone()[0]
+    try:
+        proc = proc_table.get(tid)
+    except KeyError as e:
+        raise HandlerError(str(e))
 
+    queue = proc.queue_type
     try:
         queueator = getattr(queues, queue)
     except AttributeError:
         raise HandlerError('Unable to find queueator')
 
-    queueator.update(database, tid)
-    c.execute('SELECT * FROM processes WHERE tid = ?;', (tid,))
+    queueator.update(proc_table, tid)
 
-    return (True, c.fetchone())
+    proc = proc_table.get(tid)
+
+    return (True, proc.to_dict())
 
 # TODO: other functions
 

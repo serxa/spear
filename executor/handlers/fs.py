@@ -5,7 +5,7 @@ import os
 import time
 from exception import HandlerError
 
-def stat(database, **kwargs):
+def stat(proc_table, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -25,7 +25,7 @@ def stat(database, **kwargs):
             'type' : {True: 'dir', False: 'file'}[os.path.isdir(path)],
            })
 
-def ls(database, **kwargs):
+def ls(proc_table, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -36,10 +36,10 @@ def ls(database, **kwargs):
         raise HandlerError('Unable to access file')
     return (True,
            [
-            [f, stat(database, path = [os.path.join(path,f)])[1]['type']] for f in content
+            [f, stat(proc_table, path = [os.path.join(path,f)])[1]['type']] for f in content
            ])
 
-def mkdir(database, **kwargs):
+def mkdir(proc_table, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -50,7 +50,7 @@ def mkdir(database, **kwargs):
         raise HandlerError('Unable to access file')
     return (True, None)
 
-def put(database, **kwargs):
+def put(proc_table, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:
@@ -67,7 +67,7 @@ def put(database, **kwargs):
         raise HandlerError('Error writing file')
     return (True, None)
 
-def get(database, **kwargs):
+def get(proc_table, **kwargs):
     try:
         path = kwargs['path'][0]
     except KeyError:

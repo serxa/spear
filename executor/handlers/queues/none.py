@@ -10,62 +10,26 @@ import sys
 
 PROCESS_DAEMONIZING_TIMEOUT = 5 # Seconds
 
-class Process():
-    """A class representing a process enrty in database"""
-    STATUS_STARTING = 1
-    STATUS_WAITING  = 2
-    STATUS_RUNNING  = 3
-    STATUS_ENDING   = 4
-    STATUS_STOPPED  = 5
-
-    def __init__(self, data = None):
-        # For DB version 1
-        self._dbversion = 1
-        self._data = data
-        self._from_tuple()
-
-    def _from_tuple(self):
-        if self._dbversion == 1:
-            (self.tid, self.status, self.queue_type, self.pid, self.pgid, self.exitstatus, self.workdir, self.executable, self.args, self.queue_conf, self.stdin, self.stdout, self.stderr, self.lversion, self.gversion) = [None]*15 if self._data is None else self._data
-        else:
-            raise Exception('Unsupported database version')
-    def _to_tuple(self):
-        if self._dbversion == 1:
-            self._data = (self.tid, self.status, self.queue_type, self.pid, self.pgid, self.exitstatus, self.workdir, self.executable, self.args, self.queue_conf, self.stdin, self.stdout, self.stderr, self.lversion, self.gversion)
-        else:
-            raise Exception('Unsupported database version')
-
-    def insert(self, cursor):
-        self.tid = None
-        self._to_tuple()
-        query = 'INSERT INTO processes VALUES ( {0} );'.format(' , '.join('?'*len(self._data)))
-        cursor.execute(query, self._data)
-    def update(self, cursor):
-        rows = cursor.execute('''PRAGMA table_info(processes)''')
-        info = [i[1] for i in rows]
-        self._to_tuple()
-        query = 'UPDATE processes SET {0} WHERE tid = ?;'.format(' , '.join('{0} = ?'.format(i) for i in info if i != 'tid'))
-        cursor.execute(query, self._data[1:] + (self.tid,))
-    def load(self, cursor):
-        query = 'SELECT * FROM processes WHERE tid = ?;'
-        cursor.execute(query, (self.tid,))
-        self._data = cursor.fetchone()
-        self._from_tuple()
-
 def _is_readable_with_timeout(f, timeout):
+    """Return True when file descriptor `f` becomes readable within `timeout` seconds, otherwise False.
+    """
     return len(select.select([f], [], [], timeout)[0]) > 0
 
 def _close_all(minfd = 0):
+    """Close all open file descriptors starting from `minfd`.
+
+    Non-zero `minfd` might be used to preserve stdin/stdout/stderr.
+    """
     try:
         maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
         os.closerange(minfd, maxfd)
     except:
         pass
 
-def start(database, executable, args, wd, stdinf, stdoutf, stderrf):
-    """Fork correctly anmd start a process + add a record to database
+def start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf):
+    """Fork correctly, start a process add a record to proc_table.
 
-    `stdin`, `stdout` and `stderr` parameters should be file names
+    `stdinf`, `stdoutf` and `stderrf` parameters should be file names.
     """
     pipe_r, pipe_w = os.pipe()
     stdin  = os.open(stdinf , os.O_RDONLY)
@@ -106,7 +70,7 @@ def start(database, executable, args, wd, stdinf, stdoutf, stderrf):
     pgid = pid
     pid  = int(os.read(pipe_r, 42))
     os.close(pipe_r)
-    p = Process(None)
+    p = proc_table.new_row() # Create empty Process object
     p.status      = p.STATUS_STARTING
     p.queue_type  = 'none'
     p.pid         = pid
@@ -120,23 +84,17 @@ def start(database, executable, args, wd, stdinf, stdoutf, stderrf):
     p.stderr      = stderrf
     p.lversion    = 1
     p.gversion    = 0
-    p.insert(database.cursor())
-    database.commit()
+    proc_table.insert(p)
 
-def stop(database, tid):
-    p = Process(None)
-    p.tid = tid
-    p.load(database.cursor())
+def stop(proc_table, tid):
+    p = proc_table.get(tid)
     os.kill(p.pid, signal.SIGTERM)
 
-def update(database, tid):
-    p = Process(None)
-    p.tid = tid
-    p.load(database.cursor())
+def update(proc_table, tid):
+    p = proc_table.get(tid)
     if os.path.exists('/proc/{0}'.format(p.pid)):
         p.status = p.STATUS_RUNNING
     else:
         p.status = p.STATUS_STOPPED
-    p.update(database.cursor())
-    database.commit()
+    proc_table.update(p)
 

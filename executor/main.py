@@ -18,32 +18,27 @@ from sys import argv, exit
 
 import settings
 from httphandler import ExecutorHandler
+from processes_db import ProcessesTable
 
-def server_thread(database): # TODO: move to httphandler.py
+def server_thread(database_factory): # TODO: move to httphandler.py
     """Executor/http-server thread
     """
+    proc = database_factory()
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((settings.HOST_NAME, settings.PORT_NUMBER), partial(ExecutorHandler, database()))
+    httpd = server_class((settings.HOST_NAME, settings.PORT_NUMBER), partial(ExecutorHandler, proc))
     httpd.socket = ssl.wrap_socket(httpd.socket, certfile = settings.CERTFILE, server_side = True, cert_reqs = ssl.CERT_NONE)
     httpd.serve_forever()
     # Will never happen
     httpd.server_close()
 
-def heart_thread(database):
+def heart_thread(database_factory):
     """Executor/heartbeat-sender thread
     """
-    c = database().cursor()
-    rows = c.execute('''PRAGMA table_info(processes)''') # TODO: execute only once
-    info = [i[1] for i in rows]
+    proc = database_factory()
     while True:
         #TODO: section below should be executed on timer call
-        rows = c.execute('''SELECT * FROM processes WHERE gversion < lversion''')
-        tasks = []
-        for task in rows:
-            t = dict()
-            for (f,l) in zip(task, info):
-                t[l] = f
-            tasks.append(t)
+        rows = proc.execute('SELECT * FROM @table WHERE gversion < lversion')
+        tasks = [proc._a2d(row) for row in rows]
         data = json.dumps({'port' : settings.PORT_NUMBER, 'tasks' : tasks})
         http_conn = httplib.HTTPSConnection(settings.SERVER_HOST, settings.SERVER_PORT, timeout = settings.CONNECTION_TIMEOUT) # TODO: Test whether this works with HTTPS
         headers = {'Content-Type' : 'application/json', 'Content-Length' : len(data)}
@@ -52,7 +47,8 @@ def heart_thread(database):
             response = http_conn.getresponse()
             resp_data = json.load(response)
             if resp_data['success'] == True:
-                rows = c.execute('''UPDATE processes SET gversion = lversion WHERE gversion < lversion''')
+                proc.execute('''UPDATE @table SET gversion = lversion WHERE gversion < lversion''')
+                proc.commit()
         except IOError:
             pass
         http_conn.close()
@@ -61,7 +57,7 @@ def heart_thread(database):
 if __name__ == '__main__':
     # Pepare database connection
     # We will need separate database connections for each thread
-    database = partial(sqlite3.connect, settings.DATABASE_FILE)
+    database = partial(ProcessesTable, settings.DATABASE_FILE)
     # List of function which will be started in separate threads
     thread_functions = [server_thread, heart_thread]
     # Create thread object with these functions
