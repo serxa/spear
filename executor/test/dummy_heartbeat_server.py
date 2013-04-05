@@ -3,23 +3,31 @@
 
 from sys import argv, exit
 import BaseHTTPServer
+import cgi
 import json
 import ssl
+import sys
 import time
 
 HOST_NAME = 'localhost'
 PORT_NUMBER = 8013
 
 class DummyHeartbeatHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_HEAD(s):
-        s.send_response(500)
-        s.end_headers()
-    def do_POST(s):
+    def do_HEAD(self):
+        self.send_response(500)
+        self.end_headers()
+    def do_POST(self):
         """Respond to a POST request."""
-        s.send_response(200)
-        s.send_header("Content-type", "application/json")
-        s.end_headers()
-        s.wfile.write(json.dumps({'success' : True}))
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+
+        datalen = int(self.headers['Content-Length'])
+        data = json.loads(self.rfile.read(datalen))
+        print 'Port = {0}; updated_tasks = {1}'.format(data['port'], [i['tid'] for i in data['tasks']])
+        sys.stdout.flush()
+
+        self.wfile.write(json.dumps({'success' : True}))
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer

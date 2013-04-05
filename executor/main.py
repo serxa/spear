@@ -6,18 +6,18 @@
 """
 
 import BaseHTTPServer
-import ssl
-import sqlite3
-import threading
-import os
-import time
 import httplib
 import json
-from sys import argv, exit
+import os
+import sqlite3
+import ssl
+import threading
+import time
 from functools import partial
+from sys import argv, exit
 
-from httphandler import ExecutorHandler
 import settings
+from httphandler import ExecutorHandler
 
 def server_thread(database): # TODO: move to httphandler.py
     """Executor/http-server thread
@@ -44,21 +44,19 @@ def heart_thread(database):
             for (f,l) in zip(task, info):
                 t[l] = f
             tasks.append(t)
-        data = {'port' : settings.PORT_NUMBER, 'tasks' : tasks}
+        data = json.dumps({'port' : settings.PORT_NUMBER, 'tasks' : tasks})
         http_conn = httplib.HTTPSConnection(settings.SERVER_HOST, settings.SERVER_PORT, timeout = settings.CONNECTION_TIMEOUT) # TODO: Test whether this works with HTTPS
-        headers = {'Content-Type' : 'application/json'}
+        headers = {'Content-Type' : 'application/json', 'Content-Length' : len(data)}
         try:
-            http_conn.request('POST', '/hb?eid={0}'.format(settings.EID), json.dumps(data), headers)
+            http_conn.request('POST', '/hb?eid={0}'.format(settings.EID), data, headers)
             response = http_conn.getresponse()
-            resp_data = json.loads(response.read())
+            resp_data = json.load(response)
             if resp_data['success'] == True:
                 rows = c.execute('''UPDATE processes SET gversion = lversion WHERE gversion < lversion''')
         except IOError:
             pass
         http_conn.close()
         time.sleep(settings.HEARTBEAT_TIME)
-
-
 
 if __name__ == '__main__':
     # Pepare database connection

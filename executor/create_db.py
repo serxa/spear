@@ -8,14 +8,14 @@ import settings
 
 def table_exists(cursor, table_name):
     return cursor.execute('''
-            SELECT name FROM sqlite_master
+            SELECT count(*) FROM sqlite_master
             WHERE type='table' AND name=?;
-            ''', (table_name, ))
+            ''', (table_name, )).fetchone()[0] > 0
 
 conn = sqlite3.connect(settings.DATABASE_FILE)
 c = conn.cursor()
 
-if table_exists(c, 'processes') and not '-f' in argv:
+if table_exists(c, 'processes') and not ('-f' in argv):
     print 'Table "processes" already exists. Add "-f" flag to drop and recreate it.'
 else:
     c.execute('''DROP TABLE IF EXISTS processes;''')
@@ -40,6 +40,7 @@ else:
             ''')
     c.execute('''PRAGMA user_version = 1;''')
     conn.commit()
+    print 'Success!'
 
 conn.close()
 
