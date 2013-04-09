@@ -11,8 +11,7 @@ import sys
 PROCESS_DAEMONIZING_TIMEOUT = 5 # Seconds
 
 def _is_readable_with_timeout(f, timeout):
-    """Return True when file descriptor `f` becomes readable within `timeout` seconds, otherwise False.
-    """
+    """Return True when file descriptor `f` becomes readable within `timeout` seconds, otherwise False."""
     return len(select.select([f], [], [], timeout)[0]) > 0
 
 def _close_all(minfd = 0):
@@ -64,7 +63,7 @@ def start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf):
                 os.close(pipe_w)
             except:
                 pass
-            os._exit(0)
+            os._exit(0) # Do waitpid and update database
     if not _is_readable_with_timeout(pipe_r, PROCESS_DAEMONIZING_TIMEOUT):
         raise Exception('No response from forked process')
     pgid = pid

@@ -27,10 +27,10 @@ class ProcessesTable(object):
     ROWCLASS = Process
 
     def __init__(self, dbfile):
-        self.database   = sqlite3.connect(dbfile)
+        self.database = sqlite3.connect(dbfile)
         self._create_table_if_not_exists()
         self._dbversion = self.execute('''PRAGMA user_version;''').fetchone()[0]
-        self._fields    = [i[1] for i in self.execute('''PRAGMA table_info(@table);''')]
+        self._fields = [i[1] for i in self.execute('''PRAGMA table_info(@table);''')]
         self.commit()
 
     def _create_table_if_not_exists(self):
@@ -102,14 +102,12 @@ class ProcessesTable(object):
         self.execute(query, self._r2a(row)[1:] + [getattr(row,self.PK)])
         self.commit()
     def get(self, key):
-        query = '''SELECT * FROM @table WHERE @pk = ?;'''.format(
-                )
+        query = '''SELECT * FROM @table WHERE @pk = ?;'''
         data = self.execute(query, (key,)).fetchone()
         if data is None:
             raise KeyError('TID not found')
         return self._a2r(data)
     def execute(self, query, args = []):
-        self.commit()
         q = query.replace('@table', self.TABLE).replace('@pk', self.PK)
         return self.database.execute(q, args)
     def commit(self):

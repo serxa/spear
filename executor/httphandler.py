@@ -1,8 +1,6 @@
 #-*- encoding: utf-8 -*-
 
-"""BaseHTTPServer.BaseHTTPRequestHandler class overload for spear-executor
-
-"""
+"""BaseHTTPServer.BaseHTTPRequestHandler class overload for spear-executor"""
 
 import BaseHTTPServer
 import cgi
@@ -26,13 +24,13 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        """Respond to POST request."""
+        """Respond to POST request"""
         ctype, pdict = cgi.parse_header(self.headers.getheader('Content-type'))
         post = cgi.parse_multipart(self.rfile,pdict)
         self.do_ANYTHING(post)
 
     def do_GET(self):
-        """Respond to a GET request."""
+        """Respond to a GET request"""
         self.do_ANYTHING(dict())
 
     def do_ANYTHING(self, post): # Not a conventional HTTPRequestHandler function, just a very handy routine
@@ -65,7 +63,6 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header("Status", "error: "+e.message)
             self.end_headers()
-#            self.wfile.write(json.dumps({'success':False, 'error': e.message}))
         else:
             self.send_response(200)
             self.send_header("Status", "success")
