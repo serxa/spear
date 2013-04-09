@@ -28,45 +28,63 @@ class ProcessesTable(object):
 
     def __init__(self, dbfile):
         self.database   = sqlite3.connect(dbfile)
+        self._create_table_if_not_exists()
         self._dbversion = self.execute('''PRAGMA user_version;''').fetchone()[0]
         self._fields    = [i[1] for i in self.execute('''PRAGMA table_info(@table);''')]
         self.commit()
 
+    def _create_table_if_not_exists(self):
+        """Initialize database structure"""
+        c = self.execute('''
+                CREATE TABLE IF NOT EXISTS @table (
+                    tid         INTEGER PRIMARY KEY,
+                    status      INTEGER,
+                    queue_type  TEXT   ,
+                    pid         INTEGER,
+                    pgid        INTEGER,
+                    exitstatus  INTEGER,
+                    workdir     TEXT   ,
+                    executable  TEXT   ,
+                    args        TEXT   ,
+                    queue_conf  TEXT   ,
+                    stdin       TEXT   , /* maybe BLOB? */
+                    stdout      TEXT   ,
+                    stderr      TEXT   ,
+                    lversion    INTEGER,
+                    gversion    INTEGER
+                );
+                ''')
+        self.execute('''PRAGMA user_version = 1;''')
+
     def _a2r(self, data):
-        """Array to row
-        """
+        """Array to row"""
         row = self.ROWCLASS()
         row._table = self
         for (f,v) in zip(self._fields, data):
             setattr(row, f, v)
         return row
     def _n2r(self):
-        """None to row
-        """
+        """None to row"""
         row = self.ROWCLASS()
         row._table = self
         for f in self._fields:
             setattr(row, f, None)
         return row
     def _r2a(self, row):
-        """Row to array
-        """
+        """Row to array"""
         return [getattr(row, f) for f in self._fields]
     def _a2d(self, data):
-        """Array to dict
-        """
+        """Array to dict"""
         d = dict()
         for (f,v) in zip(self._fields, data):
             d[f] = v
         return d
     def _r2d(self, row):
-        """Row to dict
-        """
+        """Row to dict"""
         d = dict()
         for f in self._fields:
             d[f] = getattr(row, f)
         return d
-
 
     def new_row(self):
         return self._n2r()

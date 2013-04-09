@@ -37,7 +37,7 @@ def run(proc_table, **kwargs):
     args = kwargs.get('arg', [])
     timeout = float(kwargs.get('timeout', [TIMEOUT_DEFAULT])[0]) #
 
-    stdin  = _stdin_from_request(kwargs)
+    stdin  = _stdin_from_request(**kwargs)
     stdout = tempfile.TemporaryFile()
     stderr = tempfile.TemporaryFile()
     argv = [executable]
