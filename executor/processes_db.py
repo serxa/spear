@@ -2,6 +2,7 @@
 
 """Very simple ORM wrapper on top of sqlite3"""
 
+import logging
 import sqlite3
 
 class Process(object):
@@ -27,11 +28,14 @@ class ProcessesTable(object):
     ROWCLASS = Process
 
     def __init__(self, dbfile):
+        self.log = logging.getLogger('db')
+        self.log.debug('Initializing database connection to file %s', dbfile)
         self.database = sqlite3.connect(dbfile)
         self._create_table_if_not_exists()
         self._dbversion = self.execute('''PRAGMA user_version;''').fetchone()[0]
         self._fields = [i[1] for i in self.execute('''PRAGMA table_info(@table);''')]
         self.commit()
+        self.log.debug('Database succesfully connected, user_version = %d', self._dbversion)
 
     def _create_table_if_not_exists(self):
         """Initialize database structure"""
@@ -109,7 +113,9 @@ class ProcessesTable(object):
         return self._a2r(data)
     def execute(self, query, args = []):
         q = query.replace('@table', self.TABLE).replace('@pk', self.PK)
+        self.log.info('Executing %s with %s', q, str(args))
         return self.database.execute(q, args)
     def commit(self):
+        self.log.info('Comitting')
         self.database.commit()
 

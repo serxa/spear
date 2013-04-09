@@ -5,6 +5,8 @@
 import BaseHTTPServer
 import cgi
 import json
+import logging
+import traceback
 import urlparse
 
 import handlers
@@ -36,6 +38,7 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_ANYTHING(self, post): # Not a conventional HTTPRequestHandler function, just a very handy routine
         """Respond to request with accompanying POST data, if any"""
         url = urlparse.urlparse(self.path)
+        logging.info('Request from %s : %s', self.client_address[0], self.path)
         try:
             urlpath = url.path.split('/')[1:]
             if len(urlpath) != 2:
@@ -54,16 +57,21 @@ class ExecutorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 func = getattr(mod, urlfunc)
             except AttributeError:
                 raise ParserError('Unable to find function')
-
+            logging.debug('Calling %s.%s', urlmodule, urlfunc)
             try:
                 retval = func(self.proc_table, **urlargs)
             except handlers.HandlerError as e:
                 raise ParserError(e.message) # Just propagate error upwards
         except ParserError as e:
+            logging.info('Normal error while processing request: %s', e.message)
             self.send_response(500)
             self.send_header("Status", "error: "+e.message)
             self.end_headers()
+        except Exception as e:
+            logging.exception('Unexpected error processing request') # The expection info will be printed automatically
+            raise
         else:
+            logging.info('Request processed succesfully')
             self.send_response(200)
             self.send_header("Status", "success")
             if retval[0]: # JSON

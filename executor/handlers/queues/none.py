@@ -2,6 +2,7 @@
 
 """The corner case of queue (no queue at all), as well as interface for queues-backends in general"""
 
+import logging
 import os
 import resource
 import select
@@ -9,6 +10,7 @@ import signal
 import sys
 
 PROCESS_DAEMONIZING_TIMEOUT = 5 # Seconds
+logger = logging.getLogger('queue/none')
 
 def _is_readable_with_timeout(f, timeout):
     """Return True when file descriptor `f` becomes readable within `timeout` seconds, otherwise False."""
@@ -36,9 +38,11 @@ def start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf):
     stderr = os.open(stderrf, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
     argv = [executable]
     argv.extend(args)
+    logger.debug('`start`ing process %s 1>%s 2>%s <%s', str(argv), stdoutf, stderrf, stdinf)
     try:
         pid = os.fork()
     except OSError, e:
+        logger.info('Error while forking: %s', e.message)
         raise Exception('Unable to fork')
     if pid == 0:
         os.setsid()
@@ -65,10 +69,12 @@ def start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf):
                 pass
             os._exit(0) # Do waitpid and update database
     if not _is_readable_with_timeout(pipe_r, PROCESS_DAEMONIZING_TIMEOUT):
+        logger.info('Forked process not responding within %d seconds', PROCESS_DAEMONIZING_TIMEOUT)
         raise Exception('No response from forked process')
     pgid = pid
     pid  = int(os.read(pipe_r, 42))
     os.close(pipe_r)
+    logger.info('Started process PID=%d PGID=%d', pid, pgid)
     p = proc_table.new_row() # Create empty Process object
     p.status      = p.STATUS_STARTING
     p.queue_type  = 'none'

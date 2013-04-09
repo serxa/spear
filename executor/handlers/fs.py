@@ -1,9 +1,13 @@
 #-*- encoding: utf-8 -*-
 """Module for handling various filesystem operations"""
 
+import logging
 import os
 import time
+
 from exception import HandlerError
+
+logger = logging.getLogger('/fs')
 
 def stat(proc_table, **kwargs):
     try:
@@ -63,7 +67,8 @@ def put(proc_table, **kwargs):
         f = open(path,'wb')
         f.write(filedata)
         f.close()
-    except (OSError, IOError):
+    except (OSError, IOError) as e:
+        logger.info('Error `put`ing to file %s : %s', path, str(e))
         raise HandlerError('Error writing file')
     return (True, None)
 
@@ -74,7 +79,8 @@ def get(proc_table, **kwargs):
         raise HandlerError('Path not specified')
     try:
         data = open(path, 'rb').read()
-    except (OSError, IOError):
+    except (OSError, IOError) as e:
+        logger.info('Error `get`ing file %s : %s', path, str(e))
         raise HandlerError('Error reading file')
     return (False, data)
 

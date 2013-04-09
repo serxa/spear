@@ -1,6 +1,7 @@
 #-*- encoding: utf-8 -*-
 """Module for running and managing external executables"""
 
+import logging
 import os
 import struct
 import subprocess
@@ -13,6 +14,7 @@ from exception import HandlerError
 from . import queues
 
 TIMEOUT_DEFAULT = 10.0 # Seconds
+logger = logging.getLogger('/proc')
 
 def _stdin_from_request(**kwargs):
     try:
@@ -46,7 +48,8 @@ def run(proc_table, **kwargs):
     # subprocess module has no wait-with-timeout functionality, so helper thread is used
     try:
         proc = subprocess.Popen(argv, stdin = stdin, stdout = stdout, stderr = stderr, cwd = wd)
-    except OSError:
+    except OSError as e:
+        logger.info('Unable to `run` process : %s', str(e))
         raise HandlerError('Unable to run')
     waiter_thread = threading.Thread(target = proc.communicate)
     waiter_thread.start()
