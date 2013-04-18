@@ -41,7 +41,7 @@ class ProcessesTable(object):
         """Initialize database structure"""
         c = self.execute('''
                 CREATE TABLE IF NOT EXISTS @table (
-                    tid         INTEGER PRIMARY KEY,
+                    tid         INTEGER UNIQUE NOT NULL,
                     status      INTEGER,
                     queue_type  TEXT   ,
                     pid         INTEGER,
@@ -93,7 +93,6 @@ class ProcessesTable(object):
     def new_row(self):
         return self._n2r()
     def insert(self, row):
-        setattr(row, self.PK, None)
         query = '''INSERT INTO @table VALUES ( {0} );'''.format(
                 ' , '.join('?'*len(self._fields)),
                 )

@@ -92,6 +92,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename = settings.LOG_FILE, level = getattr(logging, settings.LOG_LEVEL.upper()), format = '%(asctime)s %(levelname)8s <%(threadName)s::%(name)s> - %(message)s')
     logging.info('Starting executor as %s', str(argv))
     # List of function which will be started in separate threads
+    # Some request handlers, especially /proc/start are NOT thread safe, so there should never be more then one HTTPRequestHandler thread
     thread_functions = [server_thread, heart_thread]
     # Create thread objects
     threads = [threading.Thread(target = f, name = f.__name__) for f in thread_functions]

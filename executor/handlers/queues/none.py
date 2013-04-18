@@ -27,7 +27,7 @@ def _close_all(minfd = 0):
     except:
         pass
 
-def start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf):
+def start(proc_table, tid, executable, args, wd, stdinf, stdoutf, stderrf):
     """Fork correctly, start a process add a record to proc_table.
 
     `stdinf`, `stdoutf` and `stderrf` parameters should be file names.
@@ -76,6 +76,7 @@ def start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf):
     os.close(pipe_r)
     logger.info('Started process PID=%d PGID=%d', pid, pgid)
     p = proc_table.new_row() # Create empty Process object
+    p.tid         = tid
     p.status      = p.STATUS_STARTING
     p.queue_type  = 'none'
     p.pid         = pid

@@ -74,8 +74,18 @@ def start(proc_table, **kwargs):
         wd = kwargs['wd'][0]
         executable = kwargs['exec'][0]
         queue = kwargs['queue_type'][0]
+        tid = int(kwargs['tid'][0])
     except KeyError:
         raise HandlerError('Process parameters not specified')
+    except ValueError:
+        raise HandlerError('Unacceptable parameter value')
+
+    try:
+        proc_table.get(tid)
+    except KeyError:
+        pass # Process does not exist yet. It's OK.
+    else:
+        return (True, {'already_exists' : True})
 
     stdinf  = kwargs.get('stdin' ,[os.devnull])[0] #TODO: Only by-file method is supported
     stdoutf = kwargs.get('stdout',[os.devnull])[0]
@@ -88,10 +98,10 @@ def start(proc_table, **kwargs):
         raise HandlerError('Unable to find queueator')
 
     try:
-        queueator.start(proc_table, executable, args, wd, stdinf, stdoutf, stderrf)
+        queueator.start(proc_table, tid, executable, args, wd, stdinf, stdoutf, stderrf)
     except Exception, e:
         raise HandlerError('Error starting process: {0}'.format(str(e)))
-    return (True, None)
+    return (True, {'already_exists' : False})
 
 def get(proc_table, **kwargs):
     try:
