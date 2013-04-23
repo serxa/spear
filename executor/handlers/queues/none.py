@@ -67,6 +67,18 @@ def start(proc_table, tid, executable, args, wd, stdinf, stdoutf, stderrf):
                 os.close(pipe_w)
             except:
                 pass
+            try:
+                retnum = os.waitpid(pid, 0)
+            except OSError:
+                pass
+            killsig = retnum[1] % 256
+            retcode = retnum[1] / 256
+            procpid = retnum[0]
+            p            = proc_table.get(tid)
+            p.status     = p.STATUS_STOPPED
+            p.lversion  += 1
+            p.exitstatus = retcode
+            proc_table.update(p)
             os._exit(0) # Do waitpid and update database
     if not _is_readable_with_timeout(pipe_r, PROCESS_DAEMONIZING_TIMEOUT):
         logger.info('Forked process not responding within %d seconds', PROCESS_DAEMONIZING_TIMEOUT)
@@ -102,5 +114,6 @@ def update(proc_table, tid):
         p.status = p.STATUS_RUNNING
     else:
         p.status = p.STATUS_STOPPED
+    p.lversion  += 1
     proc_table.update(p)
 
