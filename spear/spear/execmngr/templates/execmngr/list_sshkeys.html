@@ -1,0 +1,12 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<ul>
+	{% for sshkey in sshkeys %}
+	<li><a href="{% url sshkey sshkey.id %}">{{ sshkey.name }}</a></li>
+	{% endfor %}
+</ul>
+
+{% include "base/paginator.html" %}
+
+{% endblock %}

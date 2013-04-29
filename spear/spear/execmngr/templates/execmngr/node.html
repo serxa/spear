@@ -1,0 +1,11 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<table>
+	<tr><td>Host: {{ node.host }}</tr></td>
+	<tr><td>User: {{ node.user }}</tr></td>
+	<tr><td>Port: {{ node.port }}</tr></td>
+	<tr><td>Status: {{ node.status }}</tr></td>
+	<tr><td>Description: {{ node.description }}</tr></td>
+</table>
+{% endblock %}

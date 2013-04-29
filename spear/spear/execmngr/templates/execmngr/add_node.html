@@ -1,0 +1,15 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="add_node">
+	{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="/execmngr/add_node">
+	{% else %}
+    <form method="post" action="/execmngr/add_node/">
+	{% endif %}
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit" value="Add Node" />
+	</form>
+</div>
+{% endblock %}

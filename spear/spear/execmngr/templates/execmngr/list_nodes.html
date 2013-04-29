@@ -1,0 +1,12 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<ul>
+	{% for node in nodes %}
+	<li><a href="{% url node node.id %}">{{ node.user }}@{{ node.host }}</a></li>
+	{% endfor %}
+</ul>
+
+{% include "base/paginator.html" %}
+
+{% endblock %}

@@ -10,7 +10,7 @@ LOG_LEVEL_DOC = 'Log level. Possible values: DEBUG, INFO, WARNING, ERROR, CRITIC
 HOST_NAME = 'localhost'
 HOST_NAME_DOC = 'Local host name'
 PORT_NUMBER = 8042
-PORT_NUMBER_DOC = 'Port number to lesten on'
+PORT_NUMBER_DOC = 'Port number to listen on'
 CERTFILE = 'test_cert.pem'
 CERTFILE_DOC = 'File with SSL certificate to use'
 

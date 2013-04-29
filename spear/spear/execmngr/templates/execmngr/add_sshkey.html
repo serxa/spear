@@ -1,0 +1,15 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="modelform">
+	{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="/execmngr/add_sshkey/">
+	{% else %}
+    <form method="post" action="/execmngr/add_sshkey/">
+	{% endif %}
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit" value="Add Key" />
+	</form>
+</div>
+{% endblock %}
