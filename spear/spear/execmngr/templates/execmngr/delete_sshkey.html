@@ -4,7 +4,7 @@
 
 <div style="color: red">Are you sure to delete SSH key?<br>WARNING: This action cannot be undone</div>
 
-<form method="post" action="{% url delete_sshkey sshkey.id %}">{% csrf_token %}
+<form method="post" action="{% url spear-execmngr-delete_sshkey sshkey.id %}">{% csrf_token %}
 	<input type="submit" value="Delete Key" />
 </form>
 

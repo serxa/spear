@@ -6,9 +6,9 @@ import django.contrib.auth.views
 urlpatterns = patterns('execmngr.views',
     (r'^$', TemplateView.as_view(template_name='core/home.html')),
 
-    # Authorization
+    # Authentication
     url(r'', include('social_auth.urls')),
     url(r'^login/$', redirect_to, {'url': '/login/github'}),
-    url(r'^logout/$', django.contrib.auth.views.logout, name='logout'),
+    url(r'^logout/$', django.contrib.auth.views.logout, name='spear-core-logout'),
     #url(r'^profile/$', 'spear.core.views.profile'), # TODO: make first redirect to profile page 
 )

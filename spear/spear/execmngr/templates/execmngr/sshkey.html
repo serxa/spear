@@ -4,6 +4,6 @@
 <b>{{ sshkey.name }}</b><br>
 {{ sshkey.description }}<br>
 <div style="color: grey">Key content is hidden for security reasons</div> 
-<a href="{% url delete_sshkey sshkey.id %}">Delete Key</a>
+<a href="{% url spear-execmngr-delete_sshkey sshkey.id %}">Delete Key</a>
 
 {% endblock %}

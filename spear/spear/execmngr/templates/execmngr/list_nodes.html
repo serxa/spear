@@ -3,7 +3,7 @@
 {% block content %}
 <ul>
 	{% for node in nodes %}
-	<li><a href="{% url node node.id %}">{{ node.user }}@{{ node.host }}</a></li>
+	<li><a href="{% url spear-execmngr-node node.id %}">{{ node.user }}@{{ node.host }}</a></li>
 	{% endfor %}
 </ul>
 

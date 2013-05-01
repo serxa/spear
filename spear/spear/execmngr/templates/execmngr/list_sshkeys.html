@@ -3,7 +3,7 @@
 {% block content %}
 <ul>
 	{% for sshkey in sshkeys %}
-	<li><a href="{% url sshkey sshkey.id %}">{{ sshkey.name }}</a></li>
+	<li><a href="{% url spear-execmngr-sshkey sshkey.id %}">{{ sshkey.name }}</a></li>
 	{% endfor %}
 </ul>
 
