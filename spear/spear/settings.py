@@ -1,5 +1,7 @@
 # Django settings for spear project.
 
+import os
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -131,7 +133,30 @@ INSTALLED_APPS = (
     'spear.base',
     'spear.core',
     'spear.execmngr',
+    'social_auth',
 )
+
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.contrib.github.GithubBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'social_auth.context_processors.social_auth_by_type_backends',
+    'django.core.context_processors.request',
+    'django.core.context_processors.debug',
+)
+
+SOCIAL_AUTH_ENABLED_BACKENDS = ('github',)
+SOCIAL_AUTH_DEFAULT_USERNAME = 'new_social_auth_user'
+
+GITHUB_APP_ID = os.environ.get('GITHUB_APP_ID')
+GITHUB_API_SECRET = os.environ.get('GITHUB_APP_SECRET')
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL = '/login-error/'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

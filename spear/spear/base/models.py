@@ -35,6 +35,7 @@ class SSHKey(models.Model):
     name = models.TextField()
     description = models.TextField()
     file = models.FileField(upload_to='sshkeys', storage=private_media)
+    #user = models.ForeignKey('User')
     
     def __unicode__(self):
         return self.name

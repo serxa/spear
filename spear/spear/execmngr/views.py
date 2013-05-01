@@ -2,6 +2,15 @@ from django.views.generic.edit import FormView, DeleteView
 from spear.execmngr.forms import NodeForm, SSHKeyForm
 from spear.base.models import SSHKey
 
+# TODO: 
+# * registration
+# * authentication
+# * fs navigation (view only)
+# * task start/list
+# * authorization/permissions
+# * fs operations (edit)
+
+
 class SSHKeyView(FormView):
     form_class = SSHKeyForm
     success_url = '/'
