@@ -12,3 +12,18 @@ ehthumbs.db
 Icon?
 Thumbs.db
 
+# Results of local testing
+*.log
+*.db
+*.sqlite
+
+# Eclipse stuff
+.project
+.pydevproject
+.settings
+/.metadata
+/spear/spear/private
+
+# Local settings/environment files
+/socialauth.sh
+local_settings.py
