@@ -8,15 +8,19 @@
 	</head>
 	<body>
 		{% block header %}
-			{% if user.is_authenticated %}
-				<b>{{ user.username }}</b>
-				<a href="{% url spear-core-logout %}?next={{ request.path }}">Logout</a>
-			{% else %}
-				{% include "base/login.html" %}
-			{% endif %}
-			<h1>Welcome to SPEAR</h1>
-			<a href="/">Home</a>
-			<br><br>
+		    <table border="0" cellspacing="5" cellpadding="5" width="100%"><tr>
+				<td width="70px"><img src="{{ STATIC_URL }}base/spear-logo-small.png" /></td>
+				<td align="left"><a href="/">Home</a></td>
+				<td align="right">
+				{% if user.is_authenticated %}
+					<b>{{ user.username }}</b>
+					<a href="{% url spear-core-logout %}?next={{ request.path }}">Logout</a>
+				{% else %}
+					{% include "base/login.html" %}
+				{% endif %}
+				</td>
+			</tr></table>
+			<br>
 		{% endblock %}
 		{% block content %}{% endblock %}
 		{% block footer %}
