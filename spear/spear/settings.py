@@ -138,6 +138,7 @@ INSTALLED_APPS = (
 
 AUTHENTICATION_BACKENDS = (
     'social_auth.backends.contrib.github.GithubBackend',
+    'social_auth.backends.google.GoogleOAuth2Backend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -148,15 +149,18 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
 )
 
-SOCIAL_AUTH_ENABLED_BACKENDS = ('github',)
+#SOCIAL_AUTH_ENABLED_BACKENDS = ('github','google')
 SOCIAL_AUTH_DEFAULT_USERNAME = 'new_social_auth_user'
 
-GITHUB_APP_ID = os.environ.get('GITHUB_APP_ID')
-GITHUB_API_SECRET = os.environ.get('GITHUB_APP_SECRET')
+GITHUB_APP_ID                = os.environ.get('GITHUB_APP_ID')
+GITHUB_API_SECRET            = os.environ.get('GITHUB_APP_SECRET')
+GOOGLE_OAUTH2_CLIENT_ID      = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID')
+GOOGLE_OAUTH2_CLIENT_SECRET  = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET')
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_ERROR_URL = '/login-error/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = LOGIN_URL
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -180,3 +184,8 @@ LOGGING = {
         },
     }
 }
+
+try:
+    from local_settings import *
+except ImportError:
+    pass

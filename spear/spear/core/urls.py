@@ -8,7 +8,8 @@ urlpatterns = patterns('execmngr.views',
 
     # Authentication
     url(r'', include('social_auth.urls')),
-    url(r'^login/$', redirect_to, {'url': '/login/github'}),
+    url(r'^login/$', TemplateView.as_view(template_name='core/login.html'), name='spear-core-login'),
+    url(r'^login-error/$', TemplateView.as_view(template_name='core/login-error.html')),
     url(r'^logout/$', django.contrib.auth.views.logout, name='spear-core-logout'),
     #url(r'^profile/$', 'spear.core.views.profile'), # TODO: make first redirect to profile page 
 )

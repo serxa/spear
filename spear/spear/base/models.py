@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.models import User
 import datetime
 from spear import settings
 
@@ -35,7 +36,7 @@ class SSHKey(models.Model):
     name = models.TextField()
     description = models.TextField()
     file = models.FileField(upload_to='sshkeys', storage=private_media)
-    #user = models.ForeignKey('User')
+    owner = models.ForeignKey(User)
     
     def __unicode__(self):
         return self.name

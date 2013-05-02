@@ -1,0 +1,12 @@
+{% extends "base/base.html" %}
+
+{% block header %}
+	<h1>Login required</h1>
+	<a href="/">Home</a><br>
+	{% if user.is_authenticated %}
+		You are already logged in as {{ user.get_full_name }}.
+		<a href="{% url spear-core-logout %}?next=/">Logout</a>
+	{% else %}
+		{% include "base/login.html" %}
+	{% endif %}
+{% endblock %}

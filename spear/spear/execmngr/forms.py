@@ -9,4 +9,5 @@ class NodeForm(ModelForm):
 class SSHKeyForm(ModelForm):
     class Meta:
         model = SSHKey
+        fields = ('name', 'description', 'file')
     
