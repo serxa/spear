@@ -39,13 +39,15 @@ class SSHKeyDetail(DetailView):
 
 class SSHKeyView(FormView):
     form_class = SSHKeyForm
-    success_url = '/'
     template_name = 'execmngr/add_sshkey.html'
+
+    def get_success_url(self):
+        return reverse('spear-execmngr-sshkey', kwargs={'pk': self.sshkey.id})
     
     def form_valid(self, form):
-        sshkey = form.save(commit=False)
-        sshkey.owner = self.request.user
-        sshkey.save()
+        self.sshkey = form.save(commit=False)
+        self.sshkey.owner = self.request.user
+        self.sshkey.save()
         return super(SSHKeyView, self).form_valid(form)
 
     @method_decorator(login_required)
@@ -94,18 +96,20 @@ class NodeDetail(DetailView):
 
 class NodeView(FormView):
     form_class = NodeForm
-    success_url = '/'
     template_name = 'execmngr/add_node.html'
 
+    def get_success_url(self):
+        return reverse('spear-execmngr-node', kwargs={'pk': self.node.id})
+    
     def get_form(self, form_class):
         form = super(NodeView, self).get_form(form_class)
         form.fields["sshkey"].queryset=SSHKey.objects.filter(owner=self.request.user)
         return form
     
     def form_valid(self, form):
-        node = form.save(commit=False)
-        node.owner = self.request.user
-        node.save()
+        self.node = form.save(commit=False)
+        self.node.owner = self.request.user
+        self.node.save()
         return super(NodeView, self).form_valid(form)
     
     @method_decorator(login_required)

@@ -1,0 +1,16 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<div style="color: red">
+	All associated tasks would be deleted from the system (TODO), but not actually stopped at the node.<br>
+	All installed applications and running processes would remain as they are.<br>
+	Are you sure to delete node?
+	<br>WARNING: This action cannot be undone
+</div>
+
+<form method="post" action="{% url spear-execmngr-delete_node node.id %}">{% csrf_token %}
+	<input type="submit" value="Delete Key" />
+</form>
+
+{% endblock %}
