@@ -4,6 +4,8 @@
 <ul>
 	{% for node in nodes %}
 	<li><a href="{% url spear-execmngr-node node.id %}">{{ node.user }}@{{ node.host }}</a></li>
+	{% empty %}
+	You have no nodes. <a href="{% url spear-execmngr-add_node %}">Add node</a>
 	{% endfor %}
 </ul>
 

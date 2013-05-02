@@ -28,6 +28,7 @@ class Node(models.Model):
     last_heartbeat = models.DateTimeField(default=datetime.datetime.now())
     description = models.TextField()
     sshkey = models.ForeignKey('SSHKey')
+    owner = models.ForeignKey(User)
 
     def __unicode__(self):
         return self.user + u'@' + self.host

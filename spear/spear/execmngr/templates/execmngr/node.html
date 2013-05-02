@@ -8,4 +8,7 @@
 	<tr><td>Status: {{ node.status }}</tr></td>
 	<tr><td>Description: {{ node.description }}</tr></td>
 </table>
+
+<a href="{% url spear-execmngr-delete_node node.id %}">Delete Node</a>
+
 {% endblock %}

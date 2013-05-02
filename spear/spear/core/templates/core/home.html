@@ -1,8 +1,8 @@
 {% extends "base/base.html" %}
 
 {% block content %}
-<a href="/execmngr/add_sshkey/">Upload SSH key</a><br>
-<a href="/execmngr/list_sshkeys/">Manage uploaded SSH keys</a><br>
-<a href="/execmngr/add_node/">Add node</a><br>
-<a href="/execmngr/list_nodes/">List of nodes</a><br>
+<a href="{% url spear-execmngr-add_sshkey %}">Add SSH key</a><br>
+<a href="{% url spear-execmngr-list_sshkeys %}">SSH key list</a><br>
+<a href="{% url spear-execmngr-add_node %}">Add node</a><br>
+<a href="{% url spear-execmngr-list_nodes %}">Nodes list</a><br>
 {% endblock %}

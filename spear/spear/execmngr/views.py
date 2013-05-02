@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from spear.execmngr.forms import NodeForm, SSHKeyForm
-from spear.base.models import SSHKey
+from spear.base.models import SSHKey, Node
 
 # TODO: 
 # * fs navigation (view only)
@@ -67,12 +67,62 @@ class SSHKeyDelete(DeleteView):
     def dispatch(self, *args, **kwargs):
         return super(SSHKeyDelete, self).dispatch(*args, **kwargs)
     
+class NodeList(ListView):
+    model = Node
+    paginate_by = 5
+    context_object_name = 'nodes'
+    template_name = 'execmngr/list_nodes.html'
+            
+    def get_queryset(self):
+        return Node.objects.filter(owner=self.request.user)
+        
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(NodeList, self).dispatch(*args, **kwargs)
+
+class NodeDetail(DetailView):
+    model = Node
+    template_name = 'execmngr/node.html'
+    context_object_name = 'node'
+
+    def get_queryset(self):
+        return Node.objects.filter(owner=self.request.user)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(NodeDetail, self).dispatch(*args, **kwargs)
+
 class NodeView(FormView):
     form_class = NodeForm
     success_url = '/'
     template_name = 'execmngr/add_node.html'
+
+    def get_form(self, form_class):
+        form = super(NodeView, self).get_form(form_class)
+        form.fields["sshkey"].queryset=SSHKey.objects.filter(owner=self.request.user)
+        return form
     
     def form_valid(self, form):
-        form.save()
+        node = form.save(commit=False)
+        node.owner = self.request.user
+        node.save()
         return super(NodeView, self).form_valid(form)
     
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(NodeView, self).dispatch(*args, **kwargs)
+
+class NodeDelete(DeleteView):
+    model = Node
+    template_name = 'execmngr/delete_node.html'
+    context_object_name = 'node' 
+
+    def get_success_url(self):
+        return reverse('spear-execmngr-list_nodes')
+
+    def get_queryset(self):
+        return Node.objects.filter(owner=self.request.user)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(NodeDelete, self).dispatch(*args, **kwargs)
