@@ -42,7 +42,7 @@ def ls(proc_table, **kwargs):
         content.sort()
     except OSError:
         raise HandlerError('Unable to access file')
-    return (True, [[f, ftype(f)] for f in content])
+    return (True, [[f, ftype(os.path.join(path,f))] for f in content])
 
 def mkdir(proc_table, **kwargs):
     try:
