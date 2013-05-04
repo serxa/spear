@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
-from views import NodeView, SSHKeyView
-from spear.execmngr.views import SSHKeyDelete, SSHKeyList, SSHKeyDetail, NodeList, NodeDetail, NodeDelete
+from spear.execmngr.views import SSHKeyView, SSHKeyDelete, SSHKeyList, SSHKeyDetail, NodeView, NodeList, NodeDetail, NodeDelete
 
 urlpatterns = patterns('execmngr.views',
     # Node related

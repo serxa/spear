@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'spear.base',
     'spear.core',
     'spear.execmngr',
+    'spear.fs',
     'social_auth',
 )
 
@@ -185,6 +186,10 @@ LOGGING = {
         },
     }
 }
+
+# fs application settings
+FS_URL = '/fs/'
+FS_CONNECT_TIMEOUT = 10
 
 try:
     from local_settings import *

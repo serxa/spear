@@ -1,0 +1,33 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<b><u>{{ user }}@{{ host }}:{{ path }}</u></b>
+{% if success %}
+<table border="0" cellspacing="0" cellpadding="1">
+	{% for file in response %}
+	<tr>
+		{% if file.type == "dir" %}
+		<td><a href="{{ file.url }}"><img src="{{ STATIC_URL }}fs/ftype/folder.png"></a></td>
+		<td><a href="{{ file.url }}">{{ file.name }}</a></td>
+		{% else %}
+	<tr>
+		<td><img src="{{ STATIC_URL }}fs/ftype/unknown.png"></td>
+		<td>{{ file.name }}</td>
+		{% endif %}
+	</tr>
+	{% empty %}
+	<tr>
+		<td></td><td>Empty folder</td>
+	</tr>
+	{% endfor %}
+</table>
+{% else %}
+<h1>ERROR</h1>
+<u>Reason</u>: {{ reason }}
+<br>
+<u>HTTP Status</u>: {{ status }}
+<br>
+<u>Response Body</u>: {{ response_body }}
+<br>
+{% endif %}
+{% endblock %}

@@ -1,13 +1,16 @@
 {% extends "base/base.html" %}
 
 {% block content %}
-<ul>
+<table border="0" cellspacing="5" cellpadding="5">
 	{% for node in nodes %}
-	<li><a href="{% url spear-execmngr-node node.id %}">{{ node.user }}@{{ node.host }}</a></li>
+	<tr>
+		<td><a href="{% url spear-fs-nav node.id '' %}">{{ node.user }}@{{ node.host }}</a></td>
+		<td><a href="{% url spear-execmngr-node node.id %}">status</a></td>
+	</tr>
 	{% empty %}
 	You have no nodes. <a href="{% url spear-execmngr-add_node %}">Add node</a>
 	{% endfor %}
-</ul>
+</table>
 
 {% include "base/paginator.html" %}
 

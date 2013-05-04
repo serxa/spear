@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     
     url(r'^execmngr/', include('spear.execmngr.urls')),
+    url(r'^fs/', include('spear.fs.urls')),
     url(r'', include('spear.core.urls')),
 )

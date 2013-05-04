@@ -21,7 +21,7 @@ class Node(models.Model):
         (4, 'Running'),
     )
     host = models.TextField()
-    port = models.IntegerField(default=8013)
+    port = models.IntegerField(default=8042)
     user = models.TextField()
     executor_path = models.TextField()
     status = models.IntegerField(choices=STATUS_CHOICES, default=NONE)
