@@ -7,11 +7,6 @@ from django.utils.decorators import method_decorator
 from spear.execmngr.forms import NodeForm, SSHKeyForm
 from spear.base.models import SSHKey, Node
 
-# TODO: 
-# * fs navigation (view only)
-# * task start/list
-# * fs operations (edit)
-
 class SSHKeyList(ListView):
     model = SSHKey
     paginate_by = 5
