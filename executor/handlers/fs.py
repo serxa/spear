@@ -9,6 +9,9 @@ from exception import HandlerError
 
 logger = logging.getLogger('/fs')
 
+def ftype(path):
+    return 'dir' if os.path.isdir(path) else 'file'
+
 def stat(proc_table, **kwargs):
     try:
         path = kwargs['path'][0]
@@ -26,7 +29,7 @@ def stat(proc_table, **kwargs):
             'mtime': stat.st_mtime,
             'ctime': stat.st_ctime,
             'isdir': os.path.isdir(path),
-            'type' : {True: 'dir', False: 'file'}[os.path.isdir(path)],
+            'type' : ftype(path),
            })
 
 def ls(proc_table, **kwargs):
@@ -36,12 +39,10 @@ def ls(proc_table, **kwargs):
         raise HandlerError('Path not specified')
     try:
         content = os.listdir(path)
+        content.sort()
     except OSError:
         raise HandlerError('Unable to access file')
-    return (True,
-           [
-            [f, stat(proc_table, path = [os.path.join(path,f)])[1]['type']] for f in content
-           ])
+    return (True, [[f, ftype(f)] for f in content])
 
 def mkdir(proc_table, **kwargs):
     try:
