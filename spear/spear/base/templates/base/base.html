@@ -12,8 +12,8 @@
 				<td width="70px"><img src="{{ STATIC_URL }}base/spear-logo-small.png" /></td>
 				<td align="left"><a href="/">Home</a></td>
 				<td align="right">
-				{% if user.is_authenticated %}
-					<b>{{ user.username }}</b>
+				{% if request.user.is_authenticated %}
+					<b>{{ request.user.username }}</b>
 					<a href="{% url spear-core-logout %}?next={{ request.path }}">Logout</a>
 				{% else %}
 					{% include "base/login.html" %}
