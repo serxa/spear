@@ -39,7 +39,7 @@ def heart_thread():
     proc = ProcessesTable(settings.DATABASE_FILE)
     while True:
         #TODO: section below should be executed on timer call
-        logging.debug('Rerieving info from database')
+        logging.debug('Retrieving info from database')
         rows = proc.execute('SELECT * FROM @table WHERE gversion < lversion')
         tasks = [proc._a2d(row) for row in rows]
         logging.info('Sending %d tasks in heartbeat', len(tasks))
