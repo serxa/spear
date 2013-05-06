@@ -1,3 +1,6 @@
+import sys
+import json
+import datetime
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView, DeleteView
 from django.views.generic.list import ListView
@@ -6,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from spear.execmngr.forms import NodeForm, SSHKeyForm
 from spear.base.models import SSHKey, Node
+from django.http import Http404, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class SSHKeyList(ListView):
     model = SSHKey
@@ -125,3 +130,26 @@ class NodeDelete(DeleteView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(NodeDelete, self).dispatch(*args, **kwargs)
+
+def json_response(json_data):
+    return HttpResponse(json.dumps(json_data), mimetype="application/json") 
+
+@csrf_exempt
+def heartbeat(request, node_id):
+    if request.method != "POST":
+        raise Http404
+    try:
+        node = Node.objects.get(pk=node_id)
+    except Node.DoesNotExist:
+        return json_response({ 'success': False, 'error': 'node {0} does not exist'.format(node_id) })
+    
+    try:
+        request_json = json.loads(request.raw_post_data)
+        node.port = request_json['port']
+        node.last_heartbeat = datetime.datetime.now()
+        node.save()
+        return json_response({ 'success': True })
+    except:
+        e = sys.exc_info()[1]
+        return json_response({ 'success': False, 'error': repr(e) })
+         

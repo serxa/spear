@@ -6,6 +6,7 @@
 	<tr><td>User: {{ node.user }}</tr></td>
 	<tr><td>Port: {{ node.port }}</tr></td>
 	<tr><td>Status: {{ node.status }}</tr></td>
+	<tr><td>Last Heartbeat: {{ node.last_heartbeat }}</tr></td>
 	<tr><td>Description: {{ node.description }}</tr></td>
 </table>
 <a href="{% url spear-fs-nav node.id '' %}">Enter node</a>

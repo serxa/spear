@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import *
-from spear.execmngr.views import SSHKeyView, SSHKeyDelete, SSHKeyList, SSHKeyDetail, NodeView, NodeList, NodeDetail, NodeDelete
+from spear.execmngr.views import SSHKeyView, SSHKeyDelete, SSHKeyList, SSHKeyDetail
+from spear.execmngr.views import NodeView, NodeList, NodeDetail, NodeDelete
+from spear.execmngr.views import heartbeat
 
 urlpatterns = patterns('execmngr.views',
     # Node related
@@ -14,7 +16,7 @@ urlpatterns = patterns('execmngr.views',
     url(r'^add_sshkey/$', SSHKeyView.as_view(), name='spear-execmngr-add_sshkey'),
     url(r'^delete_sshkey/(?P<pk>\d+)/$', SSHKeyDelete.as_view(), name='spear-execmngr-delete_sshkey'),
                        
-    #(r'^hb/$', 'hb'),
+    url(r'^hb/(?P<node_id>\d+)/$', 'heartbeat'),
     #(r'^start/$', 'start'),
     #(r'^stop/$', 'stop'),
     #(r'^remove_node/$', 'remove_node'),

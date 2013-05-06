@@ -1,7 +1,7 @@
 #-*- encoding: utf-8 -*-
 
-EID = -1
-EID_DOC = 'Executor installation ID'
+NID = -1
+NID_DOC = 'Spear Node ID'
 LOG_FILE = 'executor.log'
 LOG_FILE_DOC = 'File to write log to'
 LOG_LEVEL = 'DEBUG'
@@ -16,7 +16,7 @@ CERTFILE_DOC = 'File with SSL certificate to use'
 
 SERVER_HOST = 'localhost'
 SERVER_HOST_DOC = 'Heartbeat server'
-SERVER_PORT = 8013
+SERVER_PORT = 8000
 SERVER_PORT_DOC = 'Heartbeat server port'
 CONNECTION_TIMEOUT = 5 # Seconds
 CONNECTION_TIMEOUT_DOC = 'Timeout on connection to heartbeat server'

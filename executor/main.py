@@ -44,11 +44,11 @@ def heart_thread():
         tasks = [proc._a2d(row) for row in rows]
         logging.info('Sending %d tasks in heartbeat', len(tasks))
         data = json.dumps({'port' : settings.PORT_NUMBER, 'tasks' : tasks})
-        http_conn = httplib.HTTPSConnection(settings.SERVER_HOST, settings.SERVER_PORT, timeout = settings.CONNECTION_TIMEOUT)
+        http_conn = httplib.HTTPConnection(settings.SERVER_HOST, settings.SERVER_PORT, timeout = settings.CONNECTION_TIMEOUT)
         headers = {'Content-Type' : 'application/json', 'Content-Length' : len(data)}
         try:
             logging.debug('Connecting to server...')
-            http_conn.request('POST', '/hb?eid={0}'.format(settings.EID), data, headers)
+            http_conn.request('POST', '/execmngr/hb/{0}/'.format(settings.NID), data, headers)
             response = http_conn.getresponse()
             resp_data = json.load(response)
             if resp_data['success'] == True:
