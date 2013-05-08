@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<a href="{% url spear-execmngr-add_node %}">Add node</a><br>
 <table border="0" cellspacing="5" cellpadding="5">
 	{% for node in nodes %}
 	<tr>
@@ -8,7 +9,7 @@
 		<td><a href="{% url spear-execmngr-node node.id %}">status</a></td>
 	</tr>
 	{% empty %}
-	You have no nodes. <a href="{% url spear-execmngr-add_node %}">Add node</a>
+	You have no nodes.
 	{% endfor %}
 </table>
 

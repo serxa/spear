@@ -1,11 +1,12 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<a href="{% url spear-execmngr-add_sshkey %}">Add SSH key</a><br>
 <ul>
 	{% for sshkey in sshkeys %}
 	<li><a href="{% url spear-execmngr-sshkey sshkey.id %}">{{ sshkey.name }}</a></li>
 	{% empty %}
-	You have no SSH keys. <a href="{% url spear-execmngr-add_sshkey %}">Add SSH key</a>
+	You have no SSH keys.
 	{% endfor %}
 </ul>
 
