@@ -25,5 +25,5 @@ Thumbs.db
 /spear/spear/private
 
 # Local settings/environment files
-/socialauth.sh
+/spear/spear/socialauth.sh
 local_settings.py
