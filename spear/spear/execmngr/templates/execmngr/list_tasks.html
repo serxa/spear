@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<a href="{% url spear-execmngr-start_task %}">Start task</a><br>
+<table border="0" cellspacing="5" cellpadding="5">
+	<tr><th>workdir</th><th>executable</th><th>args</th><th>stdin</th><th>stdout</th><th>stderr</th><th>status</th><th>launched</th><th span="3"></th></tr>
+	{% for task in tasks %}
+	<tr>
+		<td><a href="{% url spear-fs-nav task.node.id task.workdir %}">{{ task.node.host }}:{{ task.workdir }}</a></td>
+		<td>{{ task.executable }}</td>
+		<td>{{ task.args }}</td>
+		<td>{{ task.stdin }}</td>
+		<td>{{ task.stdout }}</td>
+		<td>{{ task.stderr }}</td>
+		<td>{{ task.status }}</td>
+		<td>{{ task.launched }}</td>
+		<td><a href="{% url spear-execmngr-stop_task task.id %}">stop</a></td>
+		<td><a href="{% url spear-execmngr-delete_task task.id %}">delete</a></td>
+		<td><a href="{% url spear-execmngr-task task.id %}">details</a></td>
+	</tr>
+	{% empty %}
+	There are no tasks.
+	{% endfor %}
+</table>
+
+{% include "base/paginator.html" %}
+
+{% endblock %}

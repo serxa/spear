@@ -7,11 +7,14 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from spear.execmngr.forms import NodeForm, SSHKeyForm
-from spear.base.models import SSHKey, Node
+from spear.execmngr.forms import NodeForm, SSHKeyForm, TaskStartForm
+from spear.base.models import SSHKey, Node, Task
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+#
+# Views for SSH Key 
+#
 class SSHKeyList(ListView):
     model = SSHKey
     paginate_by = 5
@@ -69,6 +72,9 @@ class SSHKeyDelete(DeleteView):
     def dispatch(self, *args, **kwargs):
         return super(SSHKeyDelete, self).dispatch(*args, **kwargs)
     
+#
+# Views for Nodes 
+#
 class NodeList(ListView):
     model = Node
     paginate_by = 5
@@ -130,6 +136,77 @@ class NodeDelete(DeleteView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(NodeDelete, self).dispatch(*args, **kwargs)
+
+#
+# Views for Tasks 
+#
+class TaskList(ListView):
+    model = Task
+    paginate_by = 5
+    context_object_name = 'tasks'
+    template_name = 'execmngr/list_tasks.html'
+            
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
+        
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(TaskList, self).dispatch(*args, **kwargs)
+
+class TaskDetail(DetailView):
+    model = Task
+    template_name = 'execmngr/task.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(TaskDetail, self).dispatch(*args, **kwargs)
+
+class TaskStart(FormView):
+    form_class = TaskStartForm
+    template_name = 'execmngr/start_task.html'
+
+    def get_success_url(self):
+        return reverse('spear-execmngr-task', kwargs={'pk': self.task.id})
+    
+    def get_form(self, form_class):
+        form = super(TaskStart, self).get_form(form_class)
+        form.fields["node"].queryset=Node.objects.filter(owner=self.request.user)
+        return form
+    
+    def form_valid(self, form):
+        self.task = form.save(commit=False)
+        self.task.owner = self.request.user
+        self.task.status = Task.STARTING
+        self.task.queue_type = Task.NONE
+        self.task.gversion = 0
+        self.task.save()
+        return super(TaskStart, self).form_valid(form)
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(TaskStart, self).dispatch(*args, **kwargs)
+
+class TaskStop(FormView):
+    pass
+
+class TaskDelete(DeleteView):
+    model = Task
+    template_name = 'execmngr/delete_task.html'
+    context_object_name = 'task' 
+
+    def get_success_url(self):
+        return reverse('spear-execmngr-list_tasks')
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(TaskDelete, self).dispatch(*args, **kwargs)
 
 def json_response(json_data):
     return HttpResponse(json.dumps(json_data), mimetype="application/json") 

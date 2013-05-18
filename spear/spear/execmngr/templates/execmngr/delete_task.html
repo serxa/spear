@@ -1,0 +1,11 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<div style="color: red">Are you sure to delete task?</div>
+
+<form method="post" action="{% url spear-execmngr-delete_task task.id %}">{% csrf_token %}
+	<input type="submit" value="Delete task" />
+</form>
+
+{% endblock %}

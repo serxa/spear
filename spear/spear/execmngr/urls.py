@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from spear.execmngr.views import SSHKeyView, SSHKeyDelete, SSHKeyList, SSHKeyDetail
 from spear.execmngr.views import NodeView, NodeList, NodeDetail, NodeDelete
+from spear.execmngr.views import TaskList, TaskDetail, TaskStart, TaskStop, TaskDelete
 from spear.execmngr.views import heartbeat
 
 urlpatterns = patterns('execmngr.views',
@@ -16,8 +17,12 @@ urlpatterns = patterns('execmngr.views',
     url(r'^add_sshkey/$', SSHKeyView.as_view(), name='spear-execmngr-add_sshkey'),
     url(r'^delete_sshkey/(?P<pk>\d+)/$', SSHKeyDelete.as_view(), name='spear-execmngr-delete_sshkey'),
                        
+    # Task management
+    url(r'^list_tasks/$', TaskList.as_view(), name='spear-execmngr-list_tasks'),
+    url(r'^task/(?P<pk>\d+)/$', TaskDetail.as_view(), name='spear-execmngr-task'),
+    url(r'^start_task/$', TaskStart.as_view(), name='spear-execmngr-start_task'),
+    url(r'^stop_task/(?P<pk>\d+)/$', TaskStop.as_view(), name='spear-execmngr-stop_task'),
+    url(r'^delete_task/(?P<pk>\d+)/$', TaskDelete.as_view(), name='spear-execmngr-delete_task'),
+
     url(r'^hb/(?P<node_id>\d+)/$', 'heartbeat'),
-    #(r'^start/$', 'start'),
-    #(r'^stop/$', 'stop'),
-    #(r'^remove_node/$', 'remove_node'),
 )

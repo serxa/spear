@@ -14,11 +14,11 @@ class Node(models.Model):
     STARTING = 3
     RUNNING = 4
     STATUS_CHOICES = (
-        (0, 'None'),
-        (1, 'Installing'),
-        (2, 'Installed'),
-        (3, 'Starting'),
-        (4, 'Running'),
+        (NONE, 'None'),
+        (INSTALLING, 'Installing'),
+        (INSTALLED, 'Installed'),
+        (STARTING, 'Starting'),
+        (RUNNING, 'Running'),
     )
     host = models.TextField()
     port = models.IntegerField(default=8042)
@@ -44,7 +44,7 @@ class SSHKey(models.Model):
 
 class Application(models.Model):
     name = models.TextField()
-    registered = models.DateTimeField()
+    registered = models.DateTimeField(default=datetime.datetime.now())
     owner = models.ForeignKey(User)
 
     def __unicode__(self):
@@ -55,36 +55,36 @@ class Repository(models.Model):
     GIT = 1
     FTP = 2
     TYPE_CHOICES = (
-        (0, 'Subversion'),
-        (1, 'Git'),
-        (2, 'FTP'),
+        (SVN, 'Subversion'),
+        (GIT, 'Git'),
+        (FTP, 'FTP'),
     )
     name = models.TextField()
+    registered = models.DateTimeField(default=datetime.datetime.now())
+    owner = models.ForeignKey(User)
     type = models.IntegerField(choices=TYPE_CHOICES, default=SVN)
+    app = models.ForeignKey(Application)
     version = models.TextField()
     meta = models.TextField()
-    registered = models.DateTimeField()
-    owner = models.ForeignKey(User)
 
     def __unicode__(self):
         return self.name
     
 class Installation(models.Model):
     node = models.ForeignKey(Node)
-    installed = models.DateTimeField()
-    app = models.ForeignKey(Application)
+    installed = models.DateTimeField(default=datetime.datetime.now())
     repo = models.ForeignKey(Repository)
     
 class Environment(models.Model):
     LOCAL = 0
     PBS = 1
     TYPE_CHOICES = (
-        (0, 'Local'),
-        (1, 'PBS'),
+        (LOCAL, 'Local'),
+        (PBS, 'PBS'),
     )
     name = models.TextField()
     owner = models.ForeignKey(User)
-    created = models.DateTimeField()
+    created = models.DateTimeField(default=datetime.datetime.now())
     type = models.IntegerField(choices=TYPE_CHOICES, default=LOCAL)
     meta = models.TextField()
     
@@ -92,7 +92,7 @@ class Environment(models.Model):
 class Configuration(models.Model):
     name = models.TextField()
     owner = models.ForeignKey(User)
-    created = models.DateTimeField()
+    created = models.DateTimeField(default=datetime.datetime.now())
     app = models.ForeignKey(Application)
     app_version = models.TextField()
     app_meta = models.TextField()
@@ -105,24 +105,43 @@ class Configuration(models.Model):
         return self.name
     
 class Task(models.Model):
-    name = models.TextField()
-    launched = models.DateTimeField()
+    NONE = ''
+    QUEUE_TYPE_CHOICES = (
+        (NONE, 'Do not use queue'),
+    )
+
+    STARTING = 0
+    ENQUEUED = 1
+    RUNNING = 2
+    STOPPING = 3
+    ABORTED = 4
+    FINISHED = 5
+    STATUS_CHOICES = (
+        (STARTING, 'Starting'),
+        (ENQUEUED, 'Enqueued'),
+        (RUNNING, 'Running'),
+        (STOPPING, 'Stopping'),
+        (ABORTED, 'Aborted'),
+        (FINISHED, 'Finished'),
+    )
+
+    launched = models.DateTimeField(default=datetime.datetime.now())
     owner = models.ForeignKey(User)
     node = models.ForeignKey(Node, on_delete=models.CASCADE)
-    env = models.ForeignKey(Environment)
-    inst = models.ForeignKey(Installation)
-    conf = models.ForeignKey(Configuration)
+    env = models.ForeignKey(Environment, null=True)
+    inst = models.ForeignKey(Installation, null=True)
+    conf = models.ForeignKey(Configuration, null=True)
         
     status = models.IntegerField()
-    exitstatus = models.IntegerField()
+    exitstatus = models.IntegerField(null=True)
     workdir = models.TextField()
     executable = models.TextField()
-    args = models.TextField()
-    queue_type = models.TextField()
-    queue_meta = models.TextField()
-    stdin = models.TextField()
-    stdout = models.TextField()
-    stderr = models.TextField()
-    last_retry = models.DateTimeField()
+    args = models.TextField(blank=True)
+    queue_type = models.TextField(choices=QUEUE_TYPE_CHOICES)
+    queue_meta = models.TextField(blank=True)
+    stdin = models.TextField(default='/dev/null', blank=True)
+    stdout = models.TextField(default='/dev/null', blank=True)
+    stderr = models.TextField(default='/dev/null', blank=True)
+    last_retry = models.DateTimeField(default=datetime.datetime.now())
     gversion = models.IntegerField()
     

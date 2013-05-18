@@ -1,0 +1,9 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<table>
+	<tr><td>ExitStatus: {{ task.exitstatus }}</tr></td>
+	<tr><td>Last retry: {{ task.last_retry }}</tr></td>
+	<tr><td>Global version: {{ task.gversion }}</tr></td>
+</table>
+{% endblock %}
