@@ -1,2 +1,10 @@
+<form action="" method="post">{% csrf_token %}
+        {% for field in authform %}
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+        {% endfor %}
+    <input type="submit" name="submit" value="Login with asocial auth" />
+</form>
+
 <a href="{% url socialauth_begin 'github' %}?next={{ request.GET.next }}">Login with GitHub</a>|
 <a href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.GET.next }}">Login with Google</a>

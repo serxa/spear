@@ -16,7 +16,7 @@
 					<b>{{ request.user.username }}</b>
 					<a href="{% url spear-core-logout %}?next={{ request.path }}">Logout</a>
 				{% else %}
-					{% include "base/login.html" %}
+					<a href="{% url spear-core-login %}">Login</a>
 				{% endif %}
 				</td>
 			</tr></table>
