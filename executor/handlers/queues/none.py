@@ -107,6 +107,7 @@ def start(proc_table, tid, executable, args, wd, stdinf, stdoutf, stderrf):
 def stop(proc_table, tid):
     p = proc_table.get(tid)
     os.kill(p.pid, signal.SIGTERM)
+    logger.debug('`stop`ping process %d', p.pid)
 
 def update(proc_table, tid):
     p = proc_table.get(tid)

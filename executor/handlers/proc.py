@@ -103,6 +103,33 @@ def start(proc_table, **kwargs):
         raise HandlerError('Error starting process: {0}'.format(str(e)))
     return (True, {'already_exists' : False})
 
+def stop(proc_table, **kwargs):
+    try:
+        tid = int(kwargs['tid'][0])
+    except KeyError:
+        raise HandlerError('Process parameters not specified')
+    except ValueError:
+        raise HandlerError('Unacceptable parameter value')
+    try:
+            proc = proc_table._r2d(proc_proc_table.get(tid))
+    except KeyError:
+        return (True, {'success' : True}) # Process does not exist already. No need to do anything.
+    try:
+        queue = proc['queue_type']
+    except AttributeError:
+        raise HandlerError('Queue type not specified in table')
+
+    try:
+        queueator = getattr(queues, queue)
+    except AttributeError:
+        raise HandlerError('Unable to find queueator')
+
+    try:
+        queueator.stop(proc_table, tid)
+    except Exception, e:
+        raise HandlerError('Error stopping process: {0}'.format(str(e)))
+    return (True, {'success' : True})
+
 def get(proc_table, **kwargs):
     try:
         tid = int(kwargs['tid'][0])
